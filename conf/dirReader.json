@@ -1,0 +1,10 @@
+{
+  "user" : "inf",
+  "password" : "inf",
+  "connectString" : "xe",
+  "scanDirectory":  "./inleesdir",
+  "moveToDirectory": "./inleesdir/gelezen",
+  "numberOfFiles": 10,
+  "scanInterval":  10000,
+  "moduleNaam" : "MBUS"  
+}

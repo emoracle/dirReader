@@ -1,0 +1,60 @@
+console.log("Omgeving : Dit is een " + ((process.arch === "x64") ? "64-bits" : "32 bits") + " node omgeving.\n");
+
+const fs = require("fs"),
+  oracledb = require("oracledb"),
+  config = require("./conf/dirReader.json"),
+  callProcedure = require("./modules/callProcedure"),
+  scandir = config.scanDirectory;
+
+oracledb.autoCommit = false;
+oracledb.getConnection(
+  {
+    user: config.user,
+    password: config.password,
+    connectString: config.connectString
+  },
+  (err, conn) => {
+    if (err) {
+      console.error("getconnectionerror: ", err.message);
+      return;
+    }
+    conn.clientId = scandir;
+    conn.module = config.moduleNaam;
+    conn.action = scandir;
+
+    const leesBestand = () => {
+      console.log("Scanning :", scandir);
+      fs.readdir(scandir, (err, dir) => {
+        if (err) {
+          console.error(err.message);
+        }
+        for (var i = 0; ( i < dir.length && i < config.numberOfFiles); i++) {
+          let filePath = scandir + "/" + dir[i],
+            toPath = config.moveToDirectory + "/" + dir[i],
+            stat = fs.statSync(filePath),
+            lines;
+
+          if (stat.isFile()) {
+            console.log("reading:", filePath);
+            lines = fs.readFileSync(filePath, "utf8").split("\n");
+            lines.forEach( (line) => {
+              callProcedure(oracledb, conn, line, dir[i]);
+            });
+            console.log("move", filePath, " to", toPath);
+            fs.renameSync(filePath, toPath);                                      
+            conn.commit(  // all data is loaded so we can commit it
+                function(err) {
+                  if (err) {
+                    console.error("commit-error :", err.message);
+                  }
+                });
+                      
+          }
+
+        }
+      });
+    };
+
+    setInterval(leesBestand, config.scanInterval);
+  }
+);
