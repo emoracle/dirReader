@@ -1,0 +1,4 @@
+{
+  "appenders": { "dirReaderlog": { "type": "file", "filename": "logs/dirReader.log", "maxLogSize": 10485760, "backups": 5 } },
+  "categories": { "default": {"appenders": ["dirReaderlog"], "level": "all" } }
+}
