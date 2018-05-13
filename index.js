@@ -3,9 +3,15 @@ console.log("Omgeving : Dit is een " + ((process.arch === "x64") ? "64-bits" : "
 const fs = require("fs"),
   oracledb = require("oracledb"),
   config = require("./conf/dirReader.json"),
+  logConfig = require("./conf/logger.json"),
   lineFactory = require("./modules/lineFactory"),
   closeFactory= require("./modules/closeFactory"),
+  log4js = require("log4js"),  
   scandir = config.scanDirectory;
+
+log4js.configure(logConfig);
+const logger = log4js.getLogger() ;
+logger.level = "info";
 
 oracledb.autoCommit = false;
 
@@ -17,7 +23,7 @@ oracledb.getConnection(
   },
   (err, conn) => {
     if (err) {
-      console.error("getconnectionerror: ", err.message);
+      logger.error("getconnectionerror: ", err.message);
       return;
     }
     conn.clientId = scandir;
@@ -26,7 +32,7 @@ oracledb.getConnection(
 
     const leesBestand = () => {
 
-      console.log("Scanning :", scandir, "met een scaninterval van", config.scanInterval, "milliseconden");
+      logger.info("Scanning :", scandir, "met een scaninterval van", config.scanInterval, "milliseconden");
 
       fs.readdir(scandir, (err, dir) => {
         let
@@ -36,7 +42,7 @@ oracledb.getConnection(
           lineReader;
 
         if (err) {
-          console.error(err.message);
+          logger.error(err.message);
         }
 
         for (var i = 0; ( i < dir.length && i < config.numberOfFiles); i++) {
@@ -45,12 +51,12 @@ oracledb.getConnection(
           stat = fs.statSync(filePath);
 
           if (stat.isFile()) {
-            console.log("reading:", i, filePath);
+            logger.info("reading:", i, filePath);
             lineReader = require("readline").createInterface({
               input: require("fs").createReadStream(filePath)
             });            
-            lineReader.on("line", lineFactory(oracledb, conn, filePath));
-            lineReader.on("close" , closeFactory(filePath, toPath, conn, fs ) );
+            lineReader.on("line", lineFactory(oracledb, conn, filePath, logger));
+            lineReader.on("close" , closeFactory(filePath, toPath, conn, fs, logger ) );
           }
         }
       });

@@ -1,4 +1,4 @@
-module.exports = function (oracledb, conn, content, fileName) {
+module.exports = function (oracledb, conn, content, fileName, logger) {
   conn.execute("BEGIN ucs_ilz.lees_mbus_in(:p_content, :p_filename, :p_uitput); END;", {
     p_content: {
       val: content,
@@ -16,10 +16,10 @@ module.exports = function (oracledb, conn, content, fileName) {
     }
   }, (err, result) => {
     if (err) {
-      console.error("DBexecute:", err.message);
+      logger.error("DBexecute:", err.message);
     }
     else {
-      console.log("result :", result.outBinds.p_uitput);
+      logger.info("result :", result.outBinds.p_uitput);
     }
   });
 };

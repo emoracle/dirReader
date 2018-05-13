@@ -1,10 +1,10 @@
-module.exports = function (filePath, toPath, conn, fs) {
+module.exports = function (filePath, toPath, conn, fs, logger) {
   return function () {
-    console.log("move", filePath, " to", toPath);
+    logger.info("move", filePath, " to", toPath);
     fs.renameSync(filePath, toPath);
     conn.commit(function (err) {
       if (err) {
-        console.error("commit-error :", err.message);
+        logger.error("commit-error :", err.message);
       }
     });
   };

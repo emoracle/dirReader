@@ -8,5 +8,8 @@
     "start": "node index.js"
   },
   "author": "H.E. van Meerendonk",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "log4js": "^2.6.0"
+  }
 }
