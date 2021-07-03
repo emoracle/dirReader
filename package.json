@@ -10,6 +10,6 @@
   "author": "H.E. van Meerendonk",
   "license": "ISC",
   "dependencies": {
-    "log4js": "^2.6.0"
+    "log4js": ">=2.6.0"
   }
 }
